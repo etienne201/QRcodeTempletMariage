@@ -3,6 +3,7 @@ import { QrCode, Edit2, Trash2, User } from "lucide-react";
 
 interface Guest {
   id: number;
+  title: string;
   name: string;
   table: number;
   tableName: string;
@@ -18,7 +19,6 @@ interface GuestCardProps {
 
 export function GuestCard({ guest, onOpenQR, onEdit, onDelete }: GuestCardProps) {
   const initials = guest.name
-    .replace(/^(M\.|Mme|Dr\.?|Prof\.?)\s*/i, "")
     .split(" ")
     .slice(0, 2)
     .map((n) => n[0])
@@ -33,7 +33,7 @@ export function GuestCard({ guest, onOpenQR, onEdit, onDelete }: GuestCardProps)
 
       <div className="ml-4 flex-1 min-w-0">
         <h3 className="font-semibold text-gray-900 truncate tracking-tight">
-          {guest.name}
+          <span className="text-gold font-medium mr-1">{guest.title}</span> {guest.name}
         </h3>
         <p className="text-sm text-gray-500">
           Table <span className="text-gold font-medium">{guest.table}</span> — {guest.tableName}
@@ -45,7 +45,7 @@ export function GuestCard({ guest, onOpenQR, onEdit, onDelete }: GuestCardProps)
           onClick={() => onOpenQR(guest)}
           className="p-2 bg-emerald text-white rounded-lg hover:bg-emerald-dark transition-colors shadow-sm"
           title="Générer QR"
-          aria-label={`Générer QR pour ${guest.name}`}
+          aria-label={`Générer QR pour ${guest.title} ${guest.name}`}
         >
           <QrCode className="w-4 h-4" />
         </button>
@@ -53,7 +53,7 @@ export function GuestCard({ guest, onOpenQR, onEdit, onDelete }: GuestCardProps)
           onClick={() => onEdit(guest)}
           className="p-2 border border-gold text-gold rounded-lg hover:bg-gold-light/20 transition-colors"
           title="Modifier"
-          aria-label={`Modifier ${guest.name}`}
+          aria-label={`Modifier ${guest.title} ${guest.name}`}
         >
           <Edit2 className="w-4 h-4" />
         </button>
@@ -61,7 +61,7 @@ export function GuestCard({ guest, onOpenQR, onEdit, onDelete }: GuestCardProps)
           onClick={() => onDelete(guest.id)}
           className="p-2 border border-red-200 text-red-500 rounded-lg hover:bg-red-50 transition-colors"
           title="Supprimer"
-          aria-label={`Supprimer ${guest.name}`}
+          aria-label={`Supprimer ${guest.title} ${guest.name}`}
         >
           <Trash2 className="w-4 h-4" />
         </button>

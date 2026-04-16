@@ -3,22 +3,18 @@
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { Heart, MapPin, Calendar, UtensilsCrossed } from "lucide-react";
+import { translations, Language } from "@/lib/translations";
 
 function GuestContent() {
   const searchParams = useSearchParams();
-  const lang = searchParams.get("lang") || "fr";
+  const lang = (searchParams.get("lang") as Language) || "fr";
+  const title = searchParams.get("title") || "";
   const name = searchParams.get("name") || (lang === "fr" ? "Cher invité" : "Dear Guest");
+  const fullName = title ? `${title} ${name}` : name;
   const table = searchParams.get("table") || "?";
   const tableName = searchParams.get("tableName") || (lang === "fr" ? "Non assignée" : "Unassigned");
 
-  const t = {
-    welcome: lang === "fr" ? "Bienvenue au Mariage de" : "Welcome to the Wedding of",
-    city: lang === "fr" ? "Yaoundé" : "Yaounde",
-    greeting: lang === "fr" ? "Ravi de vous voir," : "Happy to see you,",
-    placement: lang === "fr" ? "Votre Placement" : "Your Seating",
-    tableNum: lang === "fr" ? "Numéro de table" : "Table Number",
-    quote: lang === "fr" ? "\"L'amour est le plus beau des voyages.\"" : "\"Love is the most beautiful journey.\"",
-  };
+  const t = translations[lang];
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -38,17 +34,17 @@ function GuestContent() {
             {t.welcome}
           </p>
           <h1 className="text-3xl md:text-4xl font-bold text-gold-light tracking-tight mb-2">
-            Danie & John
+            {translations.fr.title}
           </h1>
           <div className="flex items-center justify-center gap-4 text-sm opacity-80 font-light">
             <span className="flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5" />
-              06 Juin 2026
+              {t.date}
             </span>
             <span className="w-1 h-1 bg-white/30 rounded-full" />
             <span className="flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5" />
-              {t.city}
+              {t.location}
             </span>
           </div>
         </div>
@@ -60,7 +56,7 @@ function GuestContent() {
               {t.greeting}
             </p>
             <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 break-words leading-tight">
-              {name}
+              {fullName}
             </h2>
           </div>
 
@@ -73,7 +69,7 @@ function GuestContent() {
               <div className="mb-2 p-3 bg-white rounded-2xl shadow-sm group-hover:scale-110 transition-transform">
                 <UtensilsCrossed className="w-8 h-8 text-emerald" />
               </div>
-              <p className="text-sm text-gray-500 font-medium">{t.tableNum}</p>
+              <p className="text-sm text-gray-500 font-medium">{t.tableNumLabel}</p>
               <p className="text-4xl font-black text-emerald tracking-tighter mb-1">
                 {table}
               </p>
@@ -101,7 +97,7 @@ export default function GuestPage() {
       <Suspense fallback={
         <div className="min-h-screen flex items-center justify-center flex-col gap-4 text-center p-4">
           <div className="w-12 h-12 border-4 border-gold-light border-t-gold rounded-full animate-spin" />
-          <p className="text-gold font-medium animate-pulse">Chargement de votre invitation...</p>
+          <p className="text-gold font-medium animate-pulse">Chargement...</p>
         </div>
       }>
         <GuestContent />

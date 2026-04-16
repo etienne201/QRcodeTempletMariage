@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
+"use client";
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ServiceWorkerCleaner } from "@/components/ServiceWorkerCleaner";
+import { useEffect, useState } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,23 +15,31 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Mariage de Danie & John",
-  description: "Système de gestion des invitations et placement des invités",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [lang, setLang] = useState("fr");
+
+  useEffect(() => {
+    const storedLang = window.localStorage.getItem("mariage-app-lang");
+    if (storedLang) {
+      try {
+        setLang(JSON.parse(storedLang));
+      } catch (e) {
+        setLang("fr");
+      }
+    }
+  }, []);
+
   return (
     <html
-      lang="en"
+      lang={lang}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <ServiceWorkerCleaner />
         {children}
       </body>
