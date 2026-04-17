@@ -1,24 +1,11 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
-
-const DATA_PATH = path.join(process.cwd(), "lib", "guests.json");
-
-function getGuests() {
-  if (!fs.existsSync(DATA_PATH)) return [];
-  const data = fs.readFileSync(DATA_PATH, "utf8");
-  return JSON.parse(data);
-}
-
-function saveGuests(guests: any[]) {
-  fs.writeFileSync(DATA_PATH, JSON.stringify(guests, null, 2));
-}
+import { Storage } from "@/lib/storage";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
   
-  const guests = getGuests();
+  const guests = await Storage.getGuests();
   
   if (id) {
     const guest = guests.find((g: any) => g.id.toString() === id);
@@ -33,19 +20,27 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const newGuest = await request.json();
-    const guests = getGuests();
+    const guests = await Storage.getGuests();
     
-    const index = guests.findIndex((g: any) => g.id === newGuest.id);
+    const index = guests.findIndex((g: any) => g.id.toString() === newGuest.id.toString());
+    let updatedGuests = [...guests];
+
     if (index > -1) {
-      guests[index] = newGuest;
+      updatedGuests[index] = newGuest;
     } else {
-      guests.push(newGuest);
+      updatedGuests.push(newGuest);
     }
     
-    saveGuests(guests);
-    return NextResponse.json({ success: true, data: newGuest });
+    await Storage.saveGuests(updatedGuests);
+    
+    return NextResponse.json({ 
+      success: true, 
+      data: newGuest,
+      persisted: process.env.NODE_ENV === "development"
+    });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to save guest" }, { status: 500 });
+    console.error("POST Error:", error);
+    return NextResponse.json({ error: "Failed to process guest" }, { status: 500 });
   }
 }
 
@@ -55,9 +50,8 @@ export async function DELETE(request: Request) {
   
   if (!id) return NextResponse.json({ error: "ID required" }, { status: 400 });
   
-  let guests = getGuests();
-  guests = guests.filter((g: any) => g.id.toString() !== id);
-  saveGuests(guests);
+  // Use the new atomic cascading delete
+  await Storage.deleteGuest(id);
   
   return NextResponse.json({ success: true });
 }

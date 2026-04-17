@@ -14,6 +14,7 @@ import { FloatingDecorations } from "@/components/FloatingDecorations";
 import { TableManager, Table } from "@/components/TableManager";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { Language, translations } from "@/lib/translations";
+import { Toast, useToast } from "@/components/Toast";
 
 export interface Guest {
   id: number;
@@ -50,6 +51,7 @@ export default function Home() {
   const [showPresence, setShowPresence] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [theme, setTheme] = useState<"traditional" | "civil">("traditional");
+  const { toast, showToast, hideToast } = useToast();
 
   const invitationImages = [
     "/images/InvitaionDanie&johnFr.png",
@@ -60,20 +62,29 @@ export default function Home() {
 
   useEffect(() => {
     setOrigin(window.location.origin);
-    // Initial sync from API to keep server as source of truth
-    fetch("/api/guests")
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
+    
+    const syncData = async (isInitial = false) => {
+      try {
+        const res = await fetch("/api/guests");
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          // Senior check: only update if data actually changed to avoid unnecessary renders
           setGuests(data);
         }
-        // Simulated premium loading delay for WOW factor
-        setTimeout(() => setIsPageLoading(false), 2000);
-      })
-      .catch(err => {
-        console.error("Initial sync error:", err);
-        setIsPageLoading(false);
-      });
+        if (isInitial) {
+          setTimeout(() => setIsPageLoading(false), 2000);
+        }
+      } catch (err) {
+        console.error("Sync error:", err);
+        if (isInitial) setIsPageLoading(false);
+      }
+    };
+
+    syncData(true);
+
+    // Senior background polling (30s) to keep multi-device sessions in sync
+    const interval = setInterval(() => syncData(), 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const filteredGuests = useMemo(() => {
@@ -115,15 +126,17 @@ export default function Home() {
 
         if (editId !== null) {
           setGuests((prev) => prev.map((g) => (g.id === editId ? guestData : g)));
+          showToast(appLang === "fr" ? "Modifié avec succès" : "Updated successfully", "success");
           setEditId(null);
         } else {
           setGuests((prev) => [...prev, guestData]);
+          showToast(appLang === "fr" ? "Ajouté avec succès" : "Added successfully", "success");
         }
         setView("list");
       }
     } catch (error) {
       console.error("Error saving guest:", error);
-      alert("Erreur lors de la sauvegarde sur le serveur.");
+      showToast(appLang === "fr" ? "Erreur de connexion" : "Connection error", "error");
     }
   };
 
@@ -133,9 +146,11 @@ export default function Home() {
       if (res.ok) {
         setGuests((prev) => prev.filter((g) => g.id !== id));
         if (selectedGuest?.id === id) setSelectedGuest(null);
+        showToast(appLang === "fr" ? "Supprimé avec succès" : "Deleted successfully", "info");
       }
     } catch (error) {
       console.error("Error deleting guest:", error);
+      showToast(appLang === "fr" ? "Erreur lors de la suppression" : "Deletion error", "error");
     }
   };
 
@@ -320,6 +335,13 @@ export default function Home() {
           {t.guideText}
         </p>
       </footer>
+
+      <Toast 
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+      />
     </main>
   );
 }
