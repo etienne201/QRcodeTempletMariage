@@ -53,10 +53,9 @@ export default function Home() {
   const [theme, setTheme] = useState<"traditional" | "civil">("traditional");
   const { toast, showToast, hideToast } = useToast();
 
-  const invitationImages = [
-    "/images/InvitaionDanie&johnFr.png",
-    "/images/InvitaionDanie&johnEN.png"
-  ];
+  const invitationImages = appLang === "fr" 
+    ? ["/images/InvitaionDanie&johnFr.png"] 
+    : ["/images/InvitaionDanie&johnEN.png"];
 
   const t = translations[appLang];
 

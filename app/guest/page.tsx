@@ -19,10 +19,6 @@ function GuestContent() {
   const [checkInStatus, setCheckInStatus] = useState("");
   const [isPageLoading, setIsPageLoading] = useState(true);
 
-  const invitationImages = [
-    "/images/InvitaionDanie&johnFr.png",
-    "/images/InvitaionDanie&johnEN.png"
-  ];
 
   useEffect(() => {
     const guestId = searchParams.get("id");
@@ -62,6 +58,10 @@ function GuestContent() {
   const t = translations[lang as Language] || translations.fr;
   const table = data?.table || "?";
   const tableName = data?.tableName || (lang === "fr" ? "Non assignée" : "Unassigned");
+
+  const invitationImages = lang === "fr" 
+    ? ["/images/InvitaionDanie&johnFr.png"] 
+    : ["/images/InvitaionDanie&johnEN.png"];
 
   const handleAttendance = async (status: "Présent" | "Honoré") => {
     if (!id) return;
@@ -121,7 +121,11 @@ function GuestContent() {
         {hasCheckedIn && <Confetti />}
       </AnimatePresence>
       <FloatingDecorations type={lang === "fr" ? "traditional" : "civil"} />
-      <LoadingScreen isLoading={isPageLoading} title={fullName} images={invitationImages} />
+      <LoadingScreen 
+        isLoading={isPageLoading} 
+        title={fullName} 
+        images={invitationImages} 
+      />
       
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
