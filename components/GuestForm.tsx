@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { UserPlus, Save } from "lucide-react";
 import { Language, translations } from "@/lib/translations";
+import { Table } from "./TableManager";
 
 interface GuestFormProps {
   onSave: (title: string, name: string, table: number, tableName: string, lang: Language) => void;
   onCancel: () => void;
   initialData?: { title: string; name: string; table: number; tableName: string; lang: Language } | null;
-  tables: string[];
+  tables: Table[];
   currentAppLang: Language;
 }
 
@@ -16,7 +17,7 @@ export function GuestForm({ onSave, onCancel, initialData, tables, currentAppLan
   const [title, setTitle] = useState(initialData?.title || t.titles[4]); // Default to M./Mr.
   const [name, setName] = useState(initialData?.name || "");
   const [table, setTable] = useState(initialData?.table || 1);
-  const [tableName, setTableName] = useState(initialData?.tableName || tables[0]);
+  const [tableName, setTableName] = useState<string>(initialData?.tableName || (tables[0]?.name || ""));
   const [lang, setLang] = useState<Language>(initialData?.lang || currentAppLang);
   const [isCustomTable, setIsCustomTable] = useState(false);
 
@@ -27,10 +28,7 @@ export function GuestForm({ onSave, onCancel, initialData, tables, currentAppLan
       setTable(initialData.table);
       setTableName(initialData.tableName);
       setLang(initialData.lang);
-      setIsCustomTable(!tables.includes(initialData.tableName));
-    } else {
-        // When changing app language in "add" mode, update title default if not touched?
-        // Actually best to keep it stable or just use the first valid title
+      setIsCustomTable(!tables.some(t => t.name === initialData.tableName));
     }
   }, [initialData, tables]);
 
@@ -78,8 +76,8 @@ export function GuestForm({ onSave, onCancel, initialData, tables, currentAppLan
           </div>
         </div>
 
-        <div className="flex gap-3">
-          <div className="w-1/3">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="w-full sm:w-1/3">
             <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
               {t.titleLabel}
             </label>
@@ -110,7 +108,7 @@ export function GuestForm({ onSave, onCancel, initialData, tables, currentAppLan
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
               {t.tableNumber}
@@ -140,11 +138,14 @@ export function GuestForm({ onSave, onCancel, initialData, tables, currentAppLan
                 } else {
                   setIsCustomTable(false);
                   setTableName(val);
+                  // Sync table number automatically
+                  const selectedTable = tables.find(t => t.name === val);
+                  if (selectedTable) setTable(selectedTable.number);
                 }
               }}
             >
-              {tables.map((t) => (
-                <option key={t} value={t}>{t}</option>
+              {tables.map((tbl) => (
+                <option key={tbl.id} value={tbl.name}>{tbl.name}</option>
               ))}
               <option value="__custom">{t.otherTable}</option>
             </select>

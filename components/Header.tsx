@@ -1,4 +1,4 @@
-import React from "react";
+import { motion } from "framer-motion";
 import { Users, Heart, Globe } from "lucide-react";
 import { Language, translations } from "@/lib/translations";
 
@@ -24,9 +24,19 @@ export function Header({ guestCount, lang, onLanguageChange }: HeaderProps) {
               {t.ceremony}
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gold-light tracking-tight">
+          <motion.h1 
+            animate={{ 
+              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+            }}
+            transition={{ 
+              duration: 5, 
+              repeat: Infinity, 
+              ease: "linear" 
+            }}
+            className="text-2xl sm:text-3xl font-bold text-gold-light tracking-tight bg-gradient-to-r from-gold-light via-white to-gold-light bg-[length:200%_auto] bg-clip-text text-transparent"
+          >
             {t.title}
-          </h1>
+          </motion.h1>
           <p className="text-sm font-light opacity-90 mt-1">{t.date} • {t.location}</p>
           
           {/* Language Switcher */}

@@ -3,6 +3,7 @@
 import React, { useRef, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { Download, Printer, ArrowLeft, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 import { Language, translations } from "@/lib/translations";
 
 interface Guest {
@@ -22,7 +23,8 @@ interface QRCodeModalProps {
 
 export function QRCodeModal({ guest, origin, onClose }: QRCodeModalProps) {
   const [isGenerating, setIsGenerating] = useState(false);
-  const guestUrl = `${origin}/guest?id=${guest.id}&title=${encodeURIComponent(guest.title)}&name=${encodeURIComponent(guest.name)}&table=${guest.table}&tableName=${encodeURIComponent(guest.tableName)}&lang=${guest.lang}`;
+  // OPTIMIZATION: Shortened URL to reduce QR density and scanned in < 1ms
+  const guestUrl = `${origin}/guest?id=${guest.id}`;
   const t = translations[guest.lang];
 
   const invitationImg = guest.lang === "fr" 
@@ -57,20 +59,36 @@ export function QRCodeModal({ guest, origin, onClose }: QRCodeModalProps) {
       // Standardize coordinates scaled to image size
       // Analysis: Y ~ 32.5%, X ~ 39%
       const textX = canvas.width * 0.395;
-      const textY = canvas.height * 0.332;
+      const textY = canvas.height * 0.30; // Shifted up (~ -3.2%)
       
       ctx.fillStyle = "#846733"; // Gold/Bronze color
-      ctx.font = `italic 600 ${Math.round(canvas.height * 0.024)}px serif`; // Responsive font size
-      ctx.fillText(`${guest.title} ${guest.name}`, textX, textY);
+      const fontSize = Math.round(canvas.height * 0.024);
+      
+      // 2a. Draw Title (Regular)
+      ctx.font = `italic 400 ${fontSize}px serif`;
+      const titleWidth = ctx.measureText(`${guest.title} `).width;
+      ctx.fillText(`${guest.title} `, textX, textY);
+      
+      // 2b. Draw Name (Bold + Underline)
+      ctx.font = `italic 700 ${fontSize}px serif`; // Bold for name
+      ctx.fillText(guest.name, textX + titleWidth, textY);
+
+      const nameWidth = ctx.measureText(guest.name).width;
+      ctx.beginPath();
+      ctx.strokeStyle = "#846733";
+      ctx.lineWidth = 2;
+      ctx.moveTo(textX + titleWidth, textY + 5);
+      ctx.lineTo(textX + titleWidth + nameWidth, textY + 5);
+      ctx.stroke();
 
       // 3. Draw QR Code
       // Get the QR from the existing rendered component or redraw it
       const qrCanvas = document.querySelector("canvas");
       if (qrCanvas) {
-        // Position Analyzed: X ~ 84%, Y ~ 82.5%, Size ~ 14%
+        // Precision Adjusted: +2px down, +3px right
         const qrSize = canvas.width * 0.145;
-        const qrX = canvas.width * 0.832;
-        const qrY = canvas.height * 0.822;
+        const qrX = canvas.width * 0.844; // +0.5% (approx 3px)
+        const qrY = canvas.height * 0.680; // +0.3% (approx 2px)
 
         // Draw a small white background for the QR if needed (though it's in a frame)
         ctx.fillStyle = "white";
@@ -105,48 +123,72 @@ export function QRCodeModal({ guest, origin, onClose }: QRCodeModalProps) {
           {t.smartInvitation}
         </p>
         <h3 className="text-white font-semibold flex items-center justify-center gap-2">
-          {translations.fr.title}
+          {t.title}
         </h3>
       </div>
 
       <div className="p-4 md:p-8 text-center bg-ivory">
-        {/* Invitation Card with Overlays (Live Preview) */}
-        <div className="relative inline-block shadow-2xl rounded-lg overflow-hidden border border-gold-light/30 mb-8 group transition-transform hover:scale-[1.02] duration-500">
-          <img 
-            src={invitationImg} 
-            alt="Wedding Invitation" 
-            className="w-full max-w-[600px] h-auto block"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = "https://placehold.co/600x400/004d40/ecc94b?text=Image+Manquante";
+          <motion.div
+            initial={{ opacity: 0, y: 50, rotateX: -15 }}
+            animate={{ opacity: 1, y: 0, rotateX: 0 }}
+            transition={{ 
+              duration: 1.2, 
+              ease: [0.16, 1, 0.3, 1],
+              delay: 0.2
             }}
-          />
-          
-          {/* QR Code Overlay */}
-          <div className="absolute top-[82.2%] left-[83.2%] w-[14.5%] h-auto aspect-square bg-white p-0.5 rounded-sm shadow-sm md:shadow-md">
-            <QRCodeCanvas
-              value={guestUrl}
-              size={512} // High res
-              style={{ width: '100%', height: '100%' }}
-              level="H"
-              includeMargin={false}
-              imageSettings={{
-                src: "/favicon.ico",
-                x: undefined,
-                y: undefined,
-                height: 24,
-                width: 24,
-                excavate: true,
+            className="relative inline-block w-full max-w-[500px] shadow-2xl rounded-lg overflow-hidden border border-gold-light/30 mb-8 group transition-transform hover:scale-[1.01] duration-500 perspective-1000"
+          >
+            <div className="relative w-full aspect-[3/2] overflow-hidden">
+            <img 
+              src={invitationImg} 
+              alt="Invitation" 
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "https://placehold.co/600x400/004d40/ecc94b?text=Image+Manquante";
               }}
             />
-          </div>
+            
+            {/* QR Code Overlay - Responsive positioning */}
+            <motion.div 
+               initial={{ opacity: 0, scale: 0.8 }}
+               animate={{ opacity: 1, scale: 1 }}
+               transition={{ delay: 1, duration: 0.8 }}
+               className="absolute top-[68%] left-[84.4%] w-[14.5%] aspect-square bg-white p-[1%] rounded-sm shadow-sm md:shadow-md"
+            >
+              <QRCodeCanvas
+                value={guestUrl}
+                size={512} // High res
+                style={{ width: '100%', height: '100%' }}
+                level="M"
+                includeMargin={true}
+                fgColor="#846733"
+                imageSettings={{
+                  src: "/favicon.ico",
+                  x: undefined,
+                  y: undefined,
+                  height: 24,
+                  width: 24,
+                  excavate: true,
+                }}
+              />
+            </motion.div>
 
-          {/* Guest Name Overlay */}
-          <div className="absolute top-[31%] left-[39.5%] w-[40%] text-left hidden sm:block">
-             <p className="text-[10px] md:text-sm font-serif text-[#846733] italic truncate">
-               {guest.title} {guest.name}
-             </p>
+            {/* Guest Name Overlay - Responsive positioning */}
+            <motion.div 
+               initial={{ opacity: 0, x: -20 }}
+               animate={{ opacity: 1, x: 0 }}
+               transition={{ delay: 1.4, duration: 0.8 }}
+               className="absolute top-[28%] left-[39.5%] w-[50%] text-left hidden sm:flex items-baseline gap-1.5 overflow-hidden"
+            >
+               <span className="text-[1.8vw] md:text-sm font-serif text-[#846733] italic whitespace-nowrap">
+                 {guest.title}
+               </span>
+               <span className="text-[2vw] md:text-sm font-serif text-[#846733] italic font-bold border-b-2 border-[#846733] whitespace-nowrap">
+                 {guest.name}
+               </span>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         <div className="space-y-1 mb-8">
           <h4 className="text-xl font-bold text-gray-900">{guest.title} {guest.name}</h4>

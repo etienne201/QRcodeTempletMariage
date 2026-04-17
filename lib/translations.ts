@@ -40,7 +40,46 @@ export const translations = {
     downloadPNG: "PNG (Format Carte)",
     titles: [
       "Hon.", "Prof.", "Dr.", "Aîné", "M.", "Mme", "Mlle"
-    ]
+    ],
+    attendance: {
+      title: "Confirmation de Présence",
+      prompt: "Veuillez confirmer votre présence pour aujourd'hui.",
+      present: "Je suis Présent",
+      honored: "Je suis Honoré",
+      later: "Plus tard",
+      status: "Statut",
+      presentBadge: "Présent",
+      honoredBadge: "Honoré"
+    },
+    presence: {
+      listTitle: "Liste des Présences",
+      countLabel: "invité(s) enregistré(s)",
+      noData: "Aucune présence enregistrée pour le moment.",
+      scannedAt: "Scanné le",
+      at: "à",
+      downloadTitle: "Liste des Invités Présents & Honorés",
+      downloadSub: "Généré le",
+      pdfName: "presences-mariage-danie-john.pdf",
+      errorLoad: "Impossible de charger la liste des présences.",
+      errorGeneric: "Une erreur est survenue lors du chargement.",
+      retry: "Réessayer"
+    },
+    pdfBtn: "Télécharger PDF",
+    tablesBtn: "Tables",
+    tableManager: {
+      title: "Gestion des Tables",
+      addBtn: "Ajouter une Table",
+      tableName: "Nom de la table",
+      tableNumber: "N°",
+      noTables: "Aucune table personnalisée.",
+      deleteConfirm: "Supprimer cette table ?"
+    },
+    confirm: {
+      title: "Confirmation",
+      yes: "Confirmer",
+      no: "Annuler",
+      deleteGuest: "Êtes-vous sûr de vouloir supprimer cet invité ? Cette action est irréversible."
+    }
   },
   en: {
     title: "Danie & John",
@@ -81,6 +120,45 @@ export const translations = {
     downloadPNG: "PNG (Card Format)",
     titles: [
       "Hon.", "Prof.", "Dr.", "Eld.", "Mr.", "Mrs.", "Miss"
-    ]
+    ],
+    attendance: {
+      title: "Attendance Confirmation",
+      prompt: "Please confirm your attendance for today.",
+      present: "I am Present",
+      honored: "I am Honored",
+      later: "Later",
+      status: "Status",
+      presentBadge: "Present",
+      honoredBadge: "Honored"
+    },
+    presence: {
+      listTitle: "Attendance List",
+      countLabel: "guest(s) recorded",
+      noData: "No attendance recorded yet.",
+      scannedAt: "Scanned on",
+      at: "at",
+      downloadTitle: "List of Present & Honored Guests",
+      downloadSub: "Generated on",
+      pdfName: "wedding-attendance-danie-john.pdf",
+      errorLoad: "Unable to load the attendance list.",
+      errorGeneric: "An error occurred while loading.",
+      retry: "Retry"
+    },
+    pdfBtn: "Download PDF",
+    tablesBtn: "Tables",
+    tableManager: {
+      title: "Table Management",
+      addBtn: "Add Table",
+      tableName: "Table Name",
+      tableNumber: "No.",
+      noTables: "No custom tables found.",
+      deleteConfirm: "Delete this table?"
+    },
+    confirm: {
+      title: "Confirmation",
+      yes: "Confirm",
+      no: "Cancel",
+      deleteGuest: "Are you sure you want to delete this guest? This action cannot be undone."
+    }
   },
 };
