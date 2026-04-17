@@ -235,17 +235,18 @@ function GuestContent() {
           </motion.p>
         </div>
 
-        <AttendanceModal
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-          onSelect={handleAttendance}
-          guestName={fullName}
-          lang={lang}
-        />
 
         {/* Footer Accent */}
         <div className="h-2 bg-gradient-to-r from-gold via-gold-light to-gold" />
       </motion.div>
+
+      <AttendanceModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSelect={handleAttendance}
+        guestName={fullName}
+        lang={lang}
+      />
     </div>
   );
 }

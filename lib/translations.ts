@@ -4,7 +4,7 @@ export const translations = {
   fr: {
     title: "Danie & John",
     date: "06 Juin 2026",
-    location: "Yaoundé",
+    location: "Douala",
     ceremony: "Cérémonie de Mariage",
     guests: "Invités",
     searchPlaceholder: "Rechercher un invité ou une table...",
@@ -84,7 +84,7 @@ export const translations = {
   en: {
     title: "Danie & John",
     date: "June 06, 2026",
-    location: "Yaounde",
+    location: "Douala",
     ceremony: "Wedding Ceremony",
     guests: "Guests",
     searchPlaceholder: "Search for a guest or a table...",
