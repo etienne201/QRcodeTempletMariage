@@ -49,7 +49,13 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
+  const all = searchParams.get("all");
   
+  if (all === "true") {
+    await Storage.clearAllData();
+    return NextResponse.json({ success: true, message: "All data cleared" });
+  }
+
   if (!id) return NextResponse.json({ error: "ID required" }, { status: 400 });
   
   // Use the new atomic cascading delete

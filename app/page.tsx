@@ -27,15 +27,7 @@ export interface Guest {
 
 const INITIAL_GUESTS: Guest[] = [];
 
-const INITIAL_TABLES: Table[] = [
-  { id: "1", name: "Table des Témoins", number: 1 },
-  { id: "2", name: "Table Famille Tchio", number: 2 },
-  { id: "3", name: "Table Famille Atud", number: 3 },
-  { id: "4", name: "Table des Amis", number: 4 },
-  { id: "5", name: "Table d'Honneur", number: 5 },
-  { id: "6", name: "Table VIP", number: 6 },
-  { id: "7", name: "Table des Collègues", number: 7 },
-];
+const INITIAL_TABLES: Table[] = [];
 
 export default function Home() {
   const [guests, setGuests] = useLocalStorage<Guest[]>("mariage-guests", INITIAL_GUESTS);
@@ -51,6 +43,7 @@ export default function Home() {
   const [showPresence, setShowPresence] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [theme, setTheme] = useState<"traditional" | "civil">("traditional");
+  const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const { showToast } = useToast();
 
   const invitationImages = appLang === "fr"
@@ -149,6 +142,20 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Error deleting guest:", error);
+      showToast(appLang === "fr" ? "Erreur lors de la suppression" : "Deletion error", "error");
+    }
+  };
+
+  const handleClearAll = async () => {
+    try {
+      const res = await fetch("/api/guests?all=true", { method: "DELETE" });
+      if (res.ok) {
+        setGuests([]);
+        setCustomTables([]); // Clear tables too
+        showToast(appLang === "fr" ? translations.fr.confirm.clearSuccess : translations.en.confirm.clearSuccess, "success");
+      }
+    } catch (error) {
+      console.error("Error clearing data:", error);
       showToast(appLang === "fr" ? "Erreur lors de la suppression" : "Deletion error", "error");
     }
   };
@@ -324,15 +331,30 @@ export default function Home() {
         lang={appLang}
       />
 
+      <ConfirmModal
+        isOpen={isClearModalOpen}
+        onClose={() => setIsClearModalOpen(false)}
+        onConfirm={handleClearAll}
+        title={t.confirm.clearAll}
+        message={t.confirm.clearAllConfirm}
+        lang={appLang}
+      />
+
       {/* Footer Info */}
       <footer className="mt-12 p-6 bg-gold-light/30 border border-gold-light rounded-2xl">
         <h4 className="text-sm font-semibold text-gold flex items-center gap-2 mb-2">
           <span className="w-1.5 h-1.5 bg-gold rounded-full" />
           {t.guideTitle}
         </h4>
-        <p className="text-xs text-gold/80 leading-relaxed italic">
+        <p className="text-xs text-gold/80 leading-relaxed italic mb-4">
           {t.guideText}
         </p>
+        <button
+          onClick={() => setIsClearModalOpen(true)}
+          className="text-[10px] uppercase tracking-wider font-bold text-red-400 hover:text-red-500 transition-colors py-2 px-3 border border-red-400/20 rounded-lg bg-red-400/5 hover:bg-red-400/10"
+        >
+          {t.confirm.clearAll}
+        </button>
       </footer>
     </main>
   );

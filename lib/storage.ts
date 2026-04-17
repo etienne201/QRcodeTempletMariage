@@ -24,11 +24,9 @@ export const Storage = {
   async saveGuests(guests: any[]) {
     guestsCache = guests;
     try {
-      if (process.env.NODE_ENV === "development") {
-        fs.writeFileSync(GUESTS_PATH, JSON.stringify(guests, null, 2));
-      }
+      fs.writeFileSync(GUESTS_PATH, JSON.stringify(guests, null, 2));
     } catch (e) {
-      console.warn("Storage: Could not persist guests to FS.", e);
+      console.warn("Storage: Could not persist guests to FS (likely read-only).", e);
     }
   },
 
@@ -47,11 +45,20 @@ export const Storage = {
   async saveAttendance(attendance: any[]) {
     attendanceCache = attendance;
     try {
-      if (process.env.NODE_ENV === "development") {
-        fs.writeFileSync(ATTENDANCE_PATH, JSON.stringify(attendance, null, 2));
-      }
+      fs.writeFileSync(ATTENDANCE_PATH, JSON.stringify(attendance, null, 2));
     } catch (e) {
-      console.warn("Storage: Could not persist attendance to FS.", e);
+      console.warn("Storage: Could not persist attendance to FS (likely read-only).", e);
+    }
+  },
+
+  async clearAllData() {
+    guestsCache = [];
+    attendanceCache = [];
+    try {
+      if (fs.existsSync(GUESTS_PATH)) fs.writeFileSync(GUESTS_PATH, "[]");
+      if (fs.existsSync(ATTENDANCE_PATH)) fs.writeFileSync(ATTENDANCE_PATH, "[]");
+    } catch (e) {
+      console.warn("Storage: Could not clear FS files.", e);
     }
   },
 

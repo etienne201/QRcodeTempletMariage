@@ -47,8 +47,11 @@ export function GuestCard({ guest, onOpenQR, onEdit, onDelete, lang, origin }: G
         <h3 className="font-semibold text-gray-900 truncate tracking-tight">
           <span className="text-gold font-medium mr-1">{guest.title}</span> {guest.name}
         </h3>
-        <p className="text-sm text-gray-500">
-          Table <span className="text-gold font-medium">{guest.table}</span> — {guest.tableName}
+        <p className="text-sm text-gray-500 font-medium">
+          {(!guest.tableName || guest.tableName.trim() === "Non assignée" || guest.tableName.trim() === "Unassigned")
+            ? <><span className="text-gray-400">Table</span> <span className="text-gold">{guest.table}</span></>
+            : <span className="text-gold">{guest.tableName.trim().toLowerCase().startsWith("table") ? guest.tableName.trim() : `Table ${guest.tableName.trim()}`}</span>
+          }
         </p>
       </div>
 

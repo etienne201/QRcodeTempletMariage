@@ -226,12 +226,12 @@ function GuestContent() {
               <div className="mb-2 p-3 bg-white rounded-2xl shadow-sm group-hover:scale-110 transition-transform">
                 <UtensilsCrossed className="w-8 h-8 text-emerald" />
               </div>
-              <p className="text-sm text-gray-500 font-medium">{t.tableNumLabel}</p>
-              <p className="text-4xl font-black text-emerald tracking-tighter mb-1">
-                {table}
-              </p>
-              <p className="text-lg font-semibold text-emerald-dark drop-shadow-sm">
-                {tableName}
+              <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest mb-1">{t.tableNumLabel}</p>
+              <p className="text-2xl md:text-3xl font-black text-emerald tracking-tight drop-shadow-sm px-2 text-center">
+                {(!tableName || tableName === "Non assignée" || tableName === "Unassigned")
+                  ? table
+                  : (tableName.toLowerCase().startsWith("table") ? tableName : `Table ${tableName}`)
+                }
               </p>
             </div>
             

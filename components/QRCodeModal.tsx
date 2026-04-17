@@ -193,7 +193,10 @@ export function QRCodeModal({ guest, origin, onClose }: QRCodeModalProps) {
         <div className="space-y-1 mb-8">
           <h4 className="text-xl font-bold text-gray-900">{guest.title} {guest.name}</h4>
           <p className="text-gold font-medium">
-             Table {guest.table} — {guest.tableName}
+             {(!guest.tableName || guest.tableName.trim() === "Non assignée" || guest.tableName.trim() === "Unassigned")
+                ? `Table ${guest.table}`
+                : (guest.tableName.trim().toLowerCase().startsWith("table") ? guest.tableName.trim() : `Table ${guest.tableName.trim()}`)
+             }
           </p>
           <p className="text-[10px] text-gray-400 uppercase tracking-tighter mt-2">
             {t.scanMe}

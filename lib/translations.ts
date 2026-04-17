@@ -80,7 +80,10 @@ export const translations = {
       title: "Confirmation",
       yes: "Confirmer",
       no: "Annuler",
-      deleteGuest: "Êtes-vous sûr de vouloir supprimer cet invité ? Cette action est irréversible."
+      deleteGuest: "Êtes-vous sûr de vouloir supprimer cet invité ? Cette action est irréversible.",
+      clearAll: "Effacer toutes les données",
+      clearAllConfirm: "Attention ! Cela effacera TOUS les invités et TOUTES les présences. Voulez-vous continuer ?",
+      clearSuccess: "Toutes les données ont été effacées."
     }
   },
   en: {
@@ -162,7 +165,10 @@ export const translations = {
       title: "Confirmation",
       yes: "Confirm",
       no: "Cancel",
-      deleteGuest: "Are you sure you want to delete this guest? This action cannot be undone."
+      deleteGuest: "Are you sure you want to delete this guest? This action cannot be undone.",
+      clearAll: "Clear All Data",
+      clearAllConfirm: "Warning! This will delete ALL guests and ALL attendance records. Do you want to proceed?",
+      clearSuccess: "All data has been cleared."
     }
   },
 };
