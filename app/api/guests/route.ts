@@ -9,9 +9,11 @@ export async function GET(request: Request) {
   
   if (id) {
     const guest = guests.find((g: any) => g.id.toString() === id);
-    return guest 
-      ? NextResponse.json(guest) 
-      : NextResponse.json({ error: "Guest not found" }, { status: 404 });
+    if (guest) {
+      const attendanceStatus = await Storage.isGuestPresent(id);
+      return NextResponse.json({ ...guest, attendanceStatus });
+    }
+    return NextResponse.json({ error: "Guest not found" }, { status: 404 });
   }
   
   return NextResponse.json(guests);

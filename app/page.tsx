@@ -14,7 +14,7 @@ import { FloatingDecorations } from "@/components/FloatingDecorations";
 import { TableManager, Table } from "@/components/TableManager";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { Language, translations } from "@/lib/translations";
-import { Toast, useToast } from "@/components/Toast";
+import { useToast } from "@/hooks/useToast";
 
 export interface Guest {
   id: number;
@@ -51,17 +51,17 @@ export default function Home() {
   const [showPresence, setShowPresence] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [theme, setTheme] = useState<"traditional" | "civil">("traditional");
-  const { toast, showToast, hideToast } = useToast();
+  const { showToast } = useToast();
 
-  const invitationImages = appLang === "fr" 
-    ? ["/images/InvitaionDanie&johnFr.png"] 
+  const invitationImages = appLang === "fr"
+    ? ["/images/InvitaionDanie&johnFr.png"]
     : ["/images/InvitaionDanie&johnEN.png"];
 
   const t = translations[appLang];
 
   useEffect(() => {
     setOrigin(window.location.origin);
-    
+
     const syncData = async (isInitial = false) => {
       try {
         const res = await fetch("/api/guests");
@@ -71,7 +71,7 @@ export default function Home() {
           setGuests(data);
         }
         if (isInitial) {
-          setTimeout(() => setIsPageLoading(false), 2000);
+          setIsPageLoading(false);
         }
       } catch (err) {
         console.error("Sync error:", err);
@@ -165,9 +165,9 @@ export default function Home() {
 
   return (
     <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-8 md:py-12">
-      <Header 
-        guestCount={guests.length} 
-        lang={appLang} 
+      <Header
+        guestCount={guests.length}
+        lang={appLang}
         onLanguageChange={setAppLang}
       />
 
@@ -183,14 +183,13 @@ export default function Home() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        
+
         <button
           onClick={() => { setEditId(null); setView(view === "form" ? "list" : "form"); }}
-          className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-medium transition-all shadow-lg active:scale-95 ${
-            view === "form" 
-              ? "bg-white border border-gold text-gold" 
+          className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-medium transition-all shadow-lg active:scale-95 ${view === "form"
+              ? "bg-white border border-gold text-gold"
               : "bg-gold text-white shadow-gold/20 hover:bg-gold/90"
-          }`}
+            }`}
         >
           {view === "form" ? t.viewList : (
             <>
@@ -240,7 +239,7 @@ export default function Home() {
                 <div className="text-center py-20 bg-white/50 border border-dashed border-gold-light rounded-2xl">
                   <UserCheck className="w-12 h-12 text-gold-light mx-auto mb-3 opacity-50" />
                   <p className="text-gray-400 font-medium">{t.noGuests}</p>
-                  <button 
+                  <button
                     onClick={() => setSearch("")}
                     className="text-gold text-sm mt-2 hover:underline"
                   >
@@ -257,6 +256,7 @@ export default function Home() {
                       onEdit={handleStartEdit}
                       onDelete={(id) => setDeleteGuestId(id)}
                       lang={appLang}
+                      origin={origin}
                     />
                   ))}
                 </div>
@@ -302,9 +302,9 @@ export default function Home() {
       <LoadingScreen isLoading={isPageLoading} images={invitationImages} />
       <FloatingDecorations type={theme} />
 
-      <PresenceList 
-        isOpen={showPresence} 
-        onClose={() => setShowPresence(false)} 
+      <PresenceList
+        isOpen={showPresence}
+        onClose={() => setShowPresence(false)}
         lang={appLang}
       />
 
@@ -334,13 +334,6 @@ export default function Home() {
           {t.guideText}
         </p>
       </footer>
-
-      <Toast 
-        message={toast.message}
-        type={toast.type}
-        isVisible={toast.isVisible}
-        onClose={hideToast}
-      />
     </main>
   );
 }

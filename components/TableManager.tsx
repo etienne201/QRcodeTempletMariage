@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, Trash2, Hash, Edit3 } from "lucide-react";
 import { Language, translations } from "@/lib/translations";
 import { ConfirmModal } from "./ConfirmModal";
+import { useToast } from "@/hooks/useToast";
 
 export interface Table {
   id: string;
@@ -22,6 +23,7 @@ interface TableManagerProps {
 
 export function TableManager({ isOpen, onClose, tables, onUpdateTables, lang }: TableManagerProps) {
   const t = translations[lang];
+  const { showToast } = useToast();
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState<number>(tables.length + 1);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -37,6 +39,7 @@ export function TableManager({ isOpen, onClose, tables, onUpdateTables, lang }: 
     };
     
     onUpdateTables([...tables, newTable]);
+    showToast(lang === "fr" ? "Table ajoutée" : "Table added", "success");
     setNewName("");
     setNewNumber(tables.length + 2);
   };

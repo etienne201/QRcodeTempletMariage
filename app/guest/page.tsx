@@ -8,6 +8,7 @@ import { AttendanceModal } from "@/components/AttendanceModal";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { FloatingDecorations } from "@/components/FloatingDecorations";
 import { translations, Language } from "@/lib/translations";
+import { useToast } from "@/hooks/useToast";
 
 function GuestContent() {
   const searchParams = useSearchParams();
@@ -18,6 +19,7 @@ function GuestContent() {
   const [hasCheckedIn, setHasCheckedIn] = useState(false);
   const [checkInStatus, setCheckInStatus] = useState("");
   const [isPageLoading, setIsPageLoading] = useState(true);
+  const { showToast } = useToast();
 
 
   useEffect(() => {
@@ -27,23 +29,25 @@ function GuestContent() {
     if (guestId) {
       // Fetch guest data from API
       fetch(`/api/guests?id=${guestId}`)
-        .then(res => res.json())
-        .then(resData => {
+        .then((res: Response) => res.json())
+        .then((resData: any) => {
           setData(resData);
           setLoading(false);
-          // Premium delay for WOW factor
-          setTimeout(() => setIsPageLoading(false), 2000);
+          setTimeout(() => setIsPageLoading(false), 300); // Tiny delay for smooth transition
           
           // Show modal after data is loaded if not already checked in
-          const stored = localStorage.getItem(`attendance-${guestId}`);
-          if (stored) {
+          // Senior approach: Prioritize server status, fallback to localStorage
+          const serverStatus = resData.attendanceStatus;
+          const storedStatus = localStorage.getItem(`attendance-${guestId}`);
+          
+          if (serverStatus || storedStatus) {
             setHasCheckedIn(true);
-            setCheckInStatus(stored);
+            setCheckInStatus(serverStatus || (storedStatus as string));
           } else {
-            setTimeout(() => setShowModal(true), 3500); // Wait for loading screen to clear
+            setTimeout(() => setShowModal(true), 1000); // Faster appearance
           }
         })
-        .catch(err => {
+        .catch((err: Error | any) => {
           console.error("Error fetching guest:", err);
           setLoading(false);
           setIsPageLoading(false);
@@ -70,17 +74,31 @@ function GuestContent() {
       const res = await fetch("/api/attendance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ guestId: id, name: fullName, status, tableNumber: table, tableName: tableName }),
+        body: JSON.stringify({ 
+          guestId: id, 
+          name: fullName, 
+          status, 
+          tableNumber: table, 
+          tableName: tableName 
+        }),
       });
 
       if (res.ok) {
         setHasCheckedIn(true);
         setCheckInStatus(status);
         setShowModal(false);
+        showToast(
+          lang === "fr" ? "Confirmation enregistrée !" : "Check-in confirmed!", 
+          "success"
+        );
         localStorage.setItem(`attendance-${id}`, status);
       }
     } catch (error) {
       console.error("Error during check-in:", error);
+      showToast(
+        lang === "fr" ? "Erreur de connexion" : "Connection error", 
+        "error"
+      );
     }
   };
 

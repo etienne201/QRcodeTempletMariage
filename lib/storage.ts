@@ -68,5 +68,13 @@ export const Storage = {
     const attendance = await this.getAttendance();
     const filteredAttendance = attendance.filter((a: any) => a.guestId.toString() !== stringId);
     await this.saveAttendance(filteredAttendance);
+  },
+
+  // Senior Feature: Fast existence check
+  async isGuestPresent(id: string | number): Promise<string | null> {
+    const stringId = id.toString();
+    const attendance = await this.getAttendance();
+    const record = attendance.find((a: any) => a.guestId.toString() === stringId);
+    return record ? record.status : null;
   }
 };

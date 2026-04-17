@@ -5,6 +5,7 @@ import { QRCodeCanvas } from "qrcode.react";
 import { Download, Printer, ArrowLeft, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Language, translations } from "@/lib/translations";
+import { useToast } from "@/hooks/useToast";
 
 interface Guest {
   id: number;
@@ -23,6 +24,7 @@ interface QRCodeModalProps {
 
 export function QRCodeModal({ guest, origin, onClose }: QRCodeModalProps) {
   const [isGenerating, setIsGenerating] = useState(false);
+  const { showToast } = useToast();
   // OPTIMIZATION: Shortened URL to reduce QR density and scanned in < 1ms
   const guestUrl = `${origin}/guest?id=${guest.id}`;
   const t = translations[guest.lang];
@@ -56,10 +58,8 @@ export function QRCodeModal({ guest, origin, onClose }: QRCodeModalProps) {
       ctx.drawImage(bgImg, 0, 0);
 
       // 2. Draw Guest Name (Title + Name)
-      // Standardize coordinates scaled to image size
-      // Analysis: Y ~ 32.5%, X ~ 39%
       const textX = canvas.width * 0.395;
-      const textY = canvas.height * 0.30; // Shifted up (~ -3.2%)
+      const textY = canvas.height * 0.34; // Shifted up as requested
       
       ctx.fillStyle = "#846733"; // Gold/Bronze color
       const fontSize = Math.round(canvas.height * 0.024);
@@ -105,7 +105,7 @@ export function QRCodeModal({ guest, origin, onClose }: QRCodeModalProps) {
       link.click();
     } catch (error) {
       console.error("Erreur lors de la génération:", error);
-      alert("Erreur lors de la génération de l'image.");
+      showToast(guest.lang === "fr" ? "Erreur lors de la génération" : "Generation error", "error");
     } finally {
       setIsGenerating(false);
     }
@@ -178,7 +178,7 @@ export function QRCodeModal({ guest, origin, onClose }: QRCodeModalProps) {
                initial={{ opacity: 0, x: -20 }}
                animate={{ opacity: 1, x: 0 }}
                transition={{ delay: 1.4, duration: 0.8 }}
-               className="absolute top-[28%] left-[39.5%] w-[50%] text-left hidden sm:flex items-baseline gap-1.5 overflow-hidden"
+               className="absolute top-[33%] left-[39.5%] w-[50%] text-left hidden sm:flex items-baseline gap-1.5 overflow-hidden"
             >
                <span className="text-[1.8vw] md:text-sm font-serif text-[#846733] italic whitespace-nowrap">
                  {guest.title}

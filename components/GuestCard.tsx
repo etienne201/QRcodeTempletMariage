@@ -1,5 +1,6 @@
-import { QrCode, Edit2, Trash2, User } from "lucide-react";
+import { QrCode, Edit2, Trash2, User, Link as LinkIcon, Copy } from "lucide-react";
 import { translations } from "@/lib/translations";
+import { useToast } from "@/hooks/useToast";
 
 interface Guest {
   id: number;
@@ -16,16 +17,25 @@ interface GuestCardProps {
   onEdit: (g: Guest) => void;
   onDelete: (id: number) => void;
   lang: "fr" | "en";
+  origin: string;
 }
 
-export function GuestCard({ guest, onOpenQR, onEdit, onDelete, lang }: GuestCardProps) {
+export function GuestCard({ guest, onOpenQR, onEdit, onDelete, lang, origin }: GuestCardProps) {
   const t = translations[lang] || translations.fr;
+  const { showToast } = useToast();
+
   const initials = guest.name
     .split(" ")
     .slice(0, 2)
     .map((n) => n[0])
     .join("")
     .toUpperCase();
+
+  const handleCopyLink = () => {
+    const link = `${origin}/guest?id=${guest.id}`;
+    navigator.clipboard.writeText(link);
+    showToast(t.linkCopied, "info");
+  };
 
   return (
     <div className="bg-white border border-gold-light hover:border-gold rounded-xl p-4 flex items-center shadow-sm transition-all duration-300 hover:shadow-md group">
@@ -43,6 +53,14 @@ export function GuestCard({ guest, onOpenQR, onEdit, onDelete, lang }: GuestCard
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2 ml-2 transition-opacity">
+        <button
+          onClick={handleCopyLink}
+          className="p-2.5 bg-ivory text-gold border border-gold-light rounded-lg hover:bg-gold/10 transition-all active:scale-95"
+          title={t.copyLink}
+          aria-label={`${t.copyLink} - ${guest.title} ${guest.name}`}
+        >
+          <Copy className="w-4 h-4" />
+        </button>
         <button
           onClick={() => onOpenQR(guest)}
           className="p-2.5 bg-emerald text-white rounded-lg hover:bg-emerald-dark transition-all active:scale-95 shadow-sm"
