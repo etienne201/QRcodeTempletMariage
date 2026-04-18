@@ -41,7 +41,7 @@ export const translations = {
     loading: "Chargement de votre invitation...",
     downloadPNG: "PNG (Format Carte)",
     titles: [
-      "Hon.", "Prof.", "Dr.", "Aîné", "M.", "Mme", "Mlle"
+      "Hon.", "Prof.", "Dr.", "Aîné", "M.", "Mme", "Mlle", "M./Mme"
     ],
     attendance: {
       title: "Confirmation de Présence",
@@ -129,7 +129,7 @@ export const translations = {
     loading: "Loading your invitation...",
     downloadPNG: "PNG (Card Format)",
     titles: [
-      "Hon.", "Prof.", "Dr.", "Eld.", "Mr.", "Mrs.", "Miss"
+      "Hon.", "Prof.", "Dr.", "Eld.", "Mr.", "Mrs.", "Miss", "Mr./Mrs."
     ],
     attendance: {
       title: "Attendance Confirmation",
