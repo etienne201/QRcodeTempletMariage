@@ -80,11 +80,15 @@ export default function Home() {
   }, []);
 
   const filteredGuests = useMemo(() => {
-    return guests.filter(
+    const filtered = guests.filter(
       (g) =>
         g.name.toLowerCase().includes(search.toLowerCase()) ||
         g.tableName.toLowerCase().includes(search.toLowerCase())
     );
+    return filtered.sort((a, b) => {
+      if (a.table !== b.table) return a.table - b.table;
+      return a.name.localeCompare(b.name);
+    });
   }, [guests, search]);
 
   const handleSaveGuest = async (title: string, name: string, table: number, tableName: string, lang: Language) => {
@@ -280,6 +284,7 @@ export default function Home() {
             >
               <GuestForm
                 tables={customTables}
+                guests={guests}
                 initialData={editId ? guests.find((g) => g.id === editId) : null}
                 onSave={handleSaveGuest}
                 onCancel={() => { setView("list"); setEditId(null); }}

@@ -84,6 +84,9 @@ export const translations = {
       clearAll: "Effacer toutes les données",
       clearAllConfirm: "Attention ! Cela effacera TOUS les invités et TOUTES les présences. Voulez-vous continuer ?",
       clearSuccess: "Toutes les données ont été effacées."
+    },
+    errors: {
+      tableFull: "Cette table est pleine (10 invités max)."
     }
   },
   en: {
@@ -169,6 +172,9 @@ export const translations = {
       clearAll: "Clear All Data",
       clearAllConfirm: "Warning! This will delete ALL guests and ALL attendance records. Do you want to proceed?",
       clearSuccess: "All data has been cleared."
+    },
+    errors: {
+      tableFull: "This table is full (10 guests max)."
     }
   },
 };

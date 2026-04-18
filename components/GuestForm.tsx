@@ -2,17 +2,20 @@ import React, { useState, useEffect } from "react";
 import { UserPlus, Save } from "lucide-react";
 import { Language, translations } from "@/lib/translations";
 import { Table } from "./TableManager";
+import { useToast } from "@/hooks/useToast";
 
 interface GuestFormProps {
   onSave: (title: string, name: string, table: number, tableName: string, lang: Language) => void;
   onCancel: () => void;
-  initialData?: { title: string; name: string; table: number; tableName: string; lang: Language } | null;
+  initialData?: { id?: number; title: string; name: string; table: number; tableName: string; lang: Language } | null;
   tables: Table[];
+  guests: any[];
   currentAppLang: Language;
 }
 
-export function GuestForm({ onSave, onCancel, initialData, tables, currentAppLang }: GuestFormProps) {
+export function GuestForm({ onSave, onCancel, initialData, tables, guests, currentAppLang }: GuestFormProps) {
   const t = translations[currentAppLang];
+  const { showToast } = useToast();
   
   const [title, setTitle] = useState(initialData?.title || t.titles[4]); // Default to M./Mr.
   const [name, setName] = useState(initialData?.name || "");
@@ -35,6 +38,18 @@ export function GuestForm({ onSave, onCancel, initialData, tables, currentAppLan
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
+
+    const guestsInTable = guests.filter(g => g.table === table);
+    // If editing guest in the same table, subtract 1 from current total
+    const isEditingCurrentGuestInSameTable = initialData?.id && initialData.table === table;
+    const currentCount = isEditingCurrentGuestInSameTable ? guestsInTable.length - 1 : guestsInTable.length;
+
+    if (currentCount >= 10) {
+      // @ts-ignore - errors will exist based on our translation file updates
+      showToast(t.errors?.tableFull || "Cette table est pleine (10 max)", "error");
+      return;
+    }
+
     onSave(title, name, table, tableName, lang);
   };
 
