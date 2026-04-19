@@ -46,6 +46,20 @@ export default function Home() {
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const { showToast } = useToast();
 
+  const handleUpdateTables = async (newTables: Table[] | ((prev: Table[]) => Table[])) => {
+    const updated = typeof newTables === "function" ? newTables(customTables) : newTables;
+    setCustomTables(updated);
+    try {
+      await fetch("/api/tables", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updated),
+      });
+    } catch (err) {
+      console.error("Failed to sync tables", err);
+    }
+  };
+
   const invitationImages = appLang === "fr"
     ? ["/images/InvitaionDanie&johnFr.png"]
     : ["/images/InvitaionDanie&johnEN.png"];
@@ -63,6 +77,13 @@ export default function Home() {
           // Senior check: only update if data actually changed to avoid unnecessary renders
           setGuests(data);
         }
+
+        const resTables = await fetch("/api/tables");
+        const dataTables = await resTables.json();
+        if (Array.isArray(dataTables)) {
+          setCustomTables(dataTables);
+        }
+
         if (isInitial) {
           setIsPageLoading(false);
         }
@@ -117,7 +138,7 @@ export default function Home() {
             name: tableName,
             number: table
           };
-          setCustomTables((prev) => [...prev, newTable]);
+          handleUpdateTables((prev) => [...prev, newTable]);
         }
 
         if (editId !== null) {
@@ -155,7 +176,7 @@ export default function Home() {
       const res = await fetch("/api/guests?all=true", { method: "DELETE" });
       if (res.ok) {
         setGuests([]);
-        setCustomTables([]); // Clear tables too
+        handleUpdateTables([]); // Clear tables too
         showToast(appLang === "fr" ? translations.fr.confirm.clearSuccess : translations.en.confirm.clearSuccess, "success");
       }
     } catch (error) {
@@ -324,7 +345,7 @@ export default function Home() {
         isOpen={isTableManagerOpen}
         onClose={() => setIsTableManagerOpen(false)}
         tables={customTables}
-        onUpdateTables={setCustomTables}
+        onUpdateTables={handleUpdateTables}
         lang={appLang}
       />
 
