@@ -4,6 +4,7 @@ import { ServiceWorkerCleaner } from "@/components/ServiceWorkerCleaner";
 import { Metadata, Viewport } from 'next';
 import { ToastProvider } from "@/hooks/useToast";
 import { AdminNavbar } from "@/components/AdminNavbar";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,6 +44,7 @@ export default function RootLayout({
           <AdminNavbar />
           {children}
         </ToastProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
