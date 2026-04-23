@@ -32,8 +32,8 @@ export function QRCodeModal({ guest, origin, onClose, isOpen, lang }: QRCodeModa
   const t = translations[guest.lang];
 
   const invitationImg = guest.lang === "fr"
-    ? "/images/InvitaionDanie&johnFr.png"
-    : "/images/InvitaionDanie&johnEN.png";
+    ? "/images/InvitaionDanie&johnFr.jpeg"
+    : "/images/InvitaionDanie&johnEN.jpeg";
 
   const downloadInvitation = async () => {
     setIsGenerating(true);
