@@ -60,8 +60,8 @@ export function QRCodeModal({ guest, origin, onClose, isOpen, lang }: QRCodeModa
       ctx.drawImage(bgImg, 0, 0);
 
       // 2. Draw Guest Name (Title + Name)
-      const textX = canvas.width * 0.385;
-      const textY = canvas.height * 0.315; // Synchronized with UI top-[31.5%]
+      const textX = canvas.width * 0.350;
+      const textY = canvas.height * 0.285; // Synchronized with UI top-[31.5%]
 
       ctx.fillStyle = "#846733"; // Gold/Bronze color
       const fontSize = Math.round(canvas.height * 0.024);
@@ -200,7 +200,7 @@ export function QRCodeModal({ guest, origin, onClose, isOpen, lang }: QRCodeModa
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 1.4, duration: 0.8 }}
-                    className="absolute top-[25.5%] left-[36.5%] w-[35%] text-left hidden sm:flex items-baseline gap-1.5 overflow-hidden"
+                    className="absolute top-[15.5%] left-[30.5%] w-[38%] text-left hidden sm:flex items-baseline gap-1.5 overflow-hidden"
                   >
                     <span className="text-[1.8vw] md:text-sm font-serif text-[#846733] italic whitespace-nowrap">
                       {guest.title}
