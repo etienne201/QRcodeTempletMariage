@@ -31,9 +31,13 @@ export function QRCodeModal({ guest, origin, onClose, isOpen, lang }: QRCodeModa
   const guestUrl = `${origin}/guest?id=${guest.id}`;
   const t = translations[guest.lang];
 
+  const hasTableName = guest.tableName && guest.tableName.trim() !== "" && 
+                       guest.tableName.trim() !== "Non assignée" && 
+                       guest.tableName.trim() !== "Unassigned";
+
   const invitationImg = guest.lang === "fr"
-    ? "/images/InvitaionDanie&johnFr.jpeg"
-    : "/images/InvitaionDanie&johnEN.jpeg";
+    ? "/images/InvitaionDanie&johnFr.png"
+    : "/images/InvitaionDanie&johnEN.png";
 
   const downloadInvitation = async () => {
     setIsGenerating(true);
@@ -61,7 +65,7 @@ export function QRCodeModal({ guest, origin, onClose, isOpen, lang }: QRCodeModa
 
       // 2. Draw Guest Name (Title + Name)
       const textX = canvas.width * 0.350;
-      const textY = canvas.height * 0.285; // Synchronized with UI top-[31.5%]
+      const textY = canvas.height * 0.280; // Synchronized with UI top-[31.5%]
 
       ctx.fillStyle = "#846733"; // Gold/Bronze color
       const fontSize = Math.round(canvas.height * 0.024);
@@ -71,22 +75,38 @@ export function QRCodeModal({ guest, origin, onClose, isOpen, lang }: QRCodeModa
       const titleWidth = ctx.measureText(`${guest.title} `).width;
       ctx.fillText(`${guest.title} `, textX, textY);
 
-      // 2b. Draw Name (Bold + Underline)
-      ctx.font = `italic 700 ${fontSize}px serif`; // Bold for name
-      ctx.fillText(guest.name, textX + titleWidth, textY);
+      // 2b. Draw Name (Bold + Underline) or Line if empty
+      if (guest.name && guest.name.trim()) {
+        ctx.font = `italic 700 ${fontSize}px serif`; // Bold for name
+        ctx.fillText(guest.name, textX + titleWidth, textY);
 
-      const nameWidth = ctx.measureText(guest.name).width;
-      ctx.beginPath();
-      ctx.strokeStyle = "#846733";
-      ctx.lineWidth = 2;
-      ctx.moveTo(textX + titleWidth, textY + 5);
-      ctx.lineTo(textX + titleWidth + nameWidth, textY + 5);
-      ctx.stroke();
+        const nameWidth = ctx.measureText(guest.name).width;
+        ctx.beginPath();
+        ctx.strokeStyle = "#846733";
+        ctx.lineWidth = 2;
+        ctx.moveTo(textX + titleWidth, textY + 5);
+        ctx.lineTo(textX + titleWidth + nameWidth, textY + 5);
+        ctx.stroke();
+      } else {
+        // Draw a line for manual filling
+        const lineWidth = canvas.width * 0.15; // Fixed width for empty name line
+        ctx.beginPath();
+        ctx.strokeStyle = "#846733";
+        ctx.lineWidth = 2;
+        ctx.moveTo(textX + titleWidth, textY + 5);
+        ctx.lineTo(textX + titleWidth + lineWidth, textY + 5);
+        ctx.stroke();
+      }
 
       // 3. Draw Table Name/Number
-      const tableText = (!guest.tableName || guest.tableName.trim() === "Non assignée" || guest.tableName.trim() === "Unassigned")
-        ? `Table ${guest.table}`
-        : (guest.tableName.trim().toLowerCase().startsWith("table") ? guest.tableName.trim() : `Table ${guest.tableName.trim()}`);
+      const hasTableName = guest.tableName && guest.tableName.trim() !== "" && 
+                           guest.tableName.trim() !== "Non assignée" && 
+                           guest.tableName.trim() !== "Unassigned";
+      
+      // If no custom table name, just show "Table :" as requested
+      const tableText = hasTableName
+        ? (guest.tableName.trim().toLowerCase().startsWith("table") ? guest.tableName.trim() : `Table ${guest.tableName.trim()}`)
+        : "Table :";
 
       const tableTextX = canvas.width * 0.92; // Very far right
       const tableTextY = canvas.height * 0.08; // Very high
@@ -114,7 +134,10 @@ export function QRCodeModal({ guest, origin, onClose, isOpen, lang }: QRCodeModa
       // 5. Trigger Download
       const dataUrl = canvas.toDataURL("image/png", 1.0);
       const link = document.createElement("a");
-      link.download = `invitation-${guest.name.replace(/\s+/g, "-").toLowerCase()}.png`;
+      const fileName = guest.name.trim() 
+        ? `invitation-${guest.name.replace(/\s+/g, "-").toLowerCase()}.png`
+        : `invitation-${guest.title.toLowerCase()}.png`;
+      link.download = fileName;
       link.href = dataUrl;
       link.click();
     } catch (error) {
@@ -205,8 +228,8 @@ export function QRCodeModal({ guest, origin, onClose, isOpen, lang }: QRCodeModa
                     <span className="text-[1.8vw] md:text-sm font-serif text-[#846733] italic whitespace-nowrap">
                       {guest.title}
                     </span>
-                    <span className="text-[2vw] md:text-sm font-serif text-[#846733] italic font-bold border-b-2 border-[#846733] whitespace-nowrap">
-                      {guest.name}
+                    <span className={`text-[2vw] md:text-sm font-serif text-[#846733] italic font-bold border-b-2 border-[#846733] whitespace-nowrap ${!guest.name || !guest.name.trim() ? "w-20 inline-block h-2" : ""}`}>
+                      {guest.name || ""}
                     </span>
                   </motion.div>
 
@@ -218,9 +241,9 @@ export function QRCodeModal({ guest, origin, onClose, isOpen, lang }: QRCodeModa
                     className="absolute top-[8%] right-[8%] w-[30%] text-right hidden sm:block overflow-hidden"
                   >
                     <p className="text-[1.8vw] md:text-sm font-serif text-[#846733] italic font-semibold">
-                      {(!guest.tableName || guest.tableName.trim() === "Non assignée" || guest.tableName.trim() === "Unassigned")
-                        ? `Table ${guest.table}`
-                        : (guest.tableName.trim().toLowerCase().startsWith("table") ? guest.tableName.trim() : `Table ${guest.tableName.trim()}`)
+                      {hasTableName
+                        ? (guest.tableName.trim().toLowerCase().startsWith("table") ? guest.tableName.trim() : `Table ${guest.tableName.trim()}`)
+                        : "Table :"
                       }
                     </p>
                   </motion.div>
@@ -230,9 +253,9 @@ export function QRCodeModal({ guest, origin, onClose, isOpen, lang }: QRCodeModa
               <div className="space-y-1 mb-8">
                 <h4 className="text-xl font-bold text-gray-900">{guest.title} {guest.name}</h4>
                 <p className="text-gold font-medium">
-                  {(!guest.tableName || guest.tableName.trim() === "Non assignée" || guest.tableName.trim() === "Unassigned")
-                    ? `Table ${guest.table}`
-                    : (guest.tableName.trim().toLowerCase().startsWith("table") ? guest.tableName.trim() : `Table ${guest.tableName.trim()}`)
+                  {hasTableName
+                    ? (guest.tableName.trim().toLowerCase().startsWith("table") ? guest.tableName.trim() : `Table ${guest.tableName.trim()}`)
+                    : "Table :"
                   }
                 </p>
                 <p className="text-[10px] text-gray-400 uppercase tracking-tighter mt-2">

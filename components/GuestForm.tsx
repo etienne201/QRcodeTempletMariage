@@ -38,7 +38,6 @@ export function GuestForm({ onSave, onCancel, initialData, tables, guests, curre
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
 
     const guestsInTable = guests.filter(g => g.table === table);
     // If editing guest in the same table, subtract 1 from current total
@@ -118,7 +117,6 @@ export function GuestForm({ onSave, onCancel, initialData, tables, guests, curre
             <input
               autoFocus
               type="text"
-              required
               className="w-full px-4 py-2 bg-gray-50 border border-gold-light rounded-lg outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold transition-all"
               placeholder={t.fullNamePlaceholder}
               value={name}
@@ -135,7 +133,6 @@ export function GuestForm({ onSave, onCancel, initialData, tables, guests, curre
             <input
               type="number"
               min={1}
-              required
               className="w-full px-4 py-2 bg-gray-50 border border-gold-light rounded-lg outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold"
               value={table}
               onChange={(e) => setTable(Number(e.target.value))}
@@ -178,7 +175,6 @@ export function GuestForm({ onSave, onCancel, initialData, tables, guests, curre
             </label>
             <input
               type="text"
-              required
               className="w-full px-4 py-2 bg-gray-50 border border-gold-light rounded-lg outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold"
               placeholder={t.tableName}
               value={tableName}

@@ -59,9 +59,17 @@ function GuestContent() {
 
   const lang = data?.lang || "fr";
   const t = translations[lang as Language] || translations.fr;
-  const fullName = data ? (data.title ? `${data.title} ${data.name}` : data.name) : t.common.guestDefault;
-  const table = data?.table || "?";
-  const tableName = data?.tableName || t.common.unassigned;
+  
+  // Logic for displaying name: if name is empty but title exists (like "M."), show just the title.
+  const fullName = data 
+    ? ((data.name && data.name.trim()) ? (data.title ? `${data.title} ${data.name}` : data.name) : (data.title || t.common.guestDefault)) 
+    : t.common.guestDefault;
+    
+  const table = data?.table || "";
+  const tableName = data?.tableName || "";
+  
+  // Check if we should show the generic bilingual welcome
+  const isGeneric = !data || (!(data.name && data.name.trim()) && (!tableName || tableName === "Non assignée" || tableName === "Unassigned"));
 
   const invitationImages = lang === "fr" 
     ? ["/images/InvitaionDanie&johnFr.png"] 
@@ -135,7 +143,7 @@ function GuestContent() {
       <FloatingDecorations type={lang === "fr" ? "traditional" : "civil"} />
       <LoadingScreen 
         isLoading={isPageLoading} 
-        title={fullName} 
+        title={isGeneric ? "Welcome / Bienvenue" : fullName} 
         images={invitationImages} 
       />
       
@@ -167,7 +175,7 @@ function GuestContent() {
             transition={{ delay: 0.8 }}
             className="text-[10px] md:text-xs font-semibold tracking-[0.3em] uppercase opacity-70 mb-2"
           >
-            {t.welcome}
+            {isGeneric ? "Bienvenue / Welcome" : t.welcome}
           </motion.p>
           <motion.h1 
             initial={{ opacity: 0, y: 10 }}
@@ -175,7 +183,7 @@ function GuestContent() {
             transition={{ delay: 1 }}
             className="text-3xl md:text-4xl font-bold text-gold-light tracking-tight mb-2"
           >
-            {t.title}
+            {isGeneric ? "Danie & John" : t.title}
           </motion.h1>
           <div className="flex items-center justify-center gap-4 text-sm opacity-80 font-light">
             <span className="flex items-center gap-1.5">
@@ -192,54 +200,70 @@ function GuestContent() {
 
         {/* Guest Info Section */}
         <div className="p-8 md:p-12 text-center relative z-10">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={!isPageLoading ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 1.2 }}
-            className="mb-10 animate-in fade-in slide-in-from-bottom-4 duration-700"
-          >
-            <p className="text-gray-400 text-sm font-medium uppercase tracking-widest mb-3">
-              {t.greeting}
-            </p>
-            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 break-words leading-tight">
-              {fullName}
-            </h2>
-          </motion.div>
-
-          <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={!isPageLoading ? { scale: 1, opacity: 1 } : {}}
-            transition={{ delay: 1.5, type: "spring" }}
-            className="bg-gold-light/20 rounded-3xl p-6 md:p-8 border border-gold-light/40 relative group transition-all duration-500 hover:shadow-lg hover:shadow-gold/5"
-          >
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white px-4 py-1 rounded-full border border-gold-light text-gold text-[10px] font-bold uppercase tracking-widest shadow-sm">
-              {t.placement}
-            </div>
-            
-            <div className="flex flex-col items-center gap-2">
-              <div className="mb-2 p-3 bg-white rounded-2xl shadow-sm group-hover:scale-110 transition-transform">
-                <UtensilsCrossed className="w-8 h-8 text-emerald" />
-              </div>
-              <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest mb-1">{t.tableNumLabel}</p>
-              <p className="text-2xl md:text-3xl font-black text-emerald tracking-tight drop-shadow-sm px-2 text-center">
-                {(!tableName || tableName === "Non assignée" || tableName === "Unassigned")
-                  ? table
-                  : (tableName.toLowerCase().startsWith("table") ? tableName : `Table ${tableName}`)
-                }
-              </p>
-            </div>
-            
-            {hasCheckedIn && (
+          {isGeneric ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1.2 }}
+              className="py-10"
+            >
+              <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight mb-4">
+                {t.bilingualWelcome}
+              </h2>
+              <div className="w-12 h-1 bg-gold mx-auto rounded-full opacity-30" />
+            </motion.div>
+          ) : (
+            <>
               <motion.div 
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="mt-6 flex items-center justify-center gap-2 text-emerald font-bold bg-white/50 py-2 rounded-xl border border-emerald/20"
+                initial={{ opacity: 0, y: 20 }}
+                animate={!isPageLoading ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: 1.2 }}
+                className="mb-10 animate-in fade-in slide-in-from-bottom-4 duration-700"
               >
-                <CheckCircle2 className="w-4 h-4" />
-                {t.attendance.status}: {checkInStatus === "Présent" ? t.attendance.presentBadge : t.attendance.honoredBadge}
+                <p className="text-gray-400 text-sm font-medium uppercase tracking-widest mb-3">
+                  {t.greeting}
+                </p>
+                <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 break-words leading-tight">
+                  {fullName}
+                </h2>
               </motion.div>
-            )}
-          </motion.div>
+
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={!isPageLoading ? { scale: 1, opacity: 1 } : {}}
+                transition={{ delay: 1.5, type: "spring" }}
+                className="bg-gold-light/20 rounded-3xl p-6 md:p-8 border border-gold-light/40 relative group transition-all duration-500 hover:shadow-lg hover:shadow-gold/5"
+              >
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white px-4 py-1 rounded-full border border-gold-light text-gold text-[10px] font-bold uppercase tracking-widest shadow-sm">
+                  {t.placement}
+                </div>
+                
+                <div className="flex flex-col items-center gap-2">
+                  <div className="mb-2 p-3 bg-white rounded-2xl shadow-sm group-hover:scale-110 transition-transform">
+                    <UtensilsCrossed className="w-8 h-8 text-emerald" />
+                  </div>
+                  <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest mb-1">{t.tableNumLabel}</p>
+                  <p className="text-2xl md:text-3xl font-black text-emerald tracking-tight drop-shadow-sm px-2 text-center">
+                    {(!tableName || tableName === "Non assignée" || tableName === "Unassigned")
+                      ? "Table :"
+                      : (tableName.toLowerCase().startsWith("table") ? tableName : `Table ${tableName}`)
+                    }
+                  </p>
+                </div>
+                
+                {hasCheckedIn && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mt-6 flex items-center justify-center gap-2 text-emerald font-bold bg-white/50 py-2 rounded-xl border border-emerald/20"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    {t.attendance.status}: {checkInStatus === "Présent" ? t.attendance.presentBadge : t.attendance.honoredBadge}
+                  </motion.div>
+                )}
+              </motion.div>
+            </>
+          )}
 
           <motion.p 
             initial={{ opacity: 0 }}
